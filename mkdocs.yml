@@ -1,0 +1,7 @@
+site_name: Pictogram
+site_description: Instagram-like image filters.
+site_author: Roberto Gea (Alquimista)
+repo_url: https://bitbucket.com/alquimista/pictogram
+pages:
+    - [index.md, Home]
+theme: simplex

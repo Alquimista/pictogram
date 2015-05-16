@@ -1,0 +1,12 @@
+syntax: glob
+
+build
+site
+.ipynb_checkpoints
+*.pyc
+*.pyd
+*.egg-info
+*.egg
+*.lnk
+*.png
+*.tiff
