@@ -28,5 +28,6 @@ class Plugin(object):
     def load_plugin(self, name):
         return imp.load_source(name, self.__plugins[name])
 
-    def list_plugins(self):
+    @property
+    def plugins(self):
         return list(self.__plugins.keys())

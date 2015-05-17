@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from functools import partial
 import os
 
 try:
     import plugin as plug
+    from image import Image
 except ImportError:
     from . import plugin as plug
+    from .image import Image
 
 from wand.display import display
-from wand.image import Image
 
 
 ROOT_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -28,13 +28,11 @@ class Photo(object):
 
     def __init__(self, im=None):
         super(Photo, self).__init__()
-        self._im = im
-        if not hasattr(self._im, 'gaussian_blur'):
-            self._im = Image(filename=self._im)
+        self._new(im)
         self.__plugins = plug.Plugin(PLUGIN_PATHS)
         self._filters = {}
 
-        for plugin_name in self.__plugins.list_plugins():
+        for plugin_name in self.__plugins.plugins:
             plugin = self.__plugins.load_plugin(plugin_name)
             try:
                 plugin.setup(self)
@@ -48,15 +46,19 @@ class Photo(object):
         self.height = self._im.height
         self.size = self.width, self.height
 
-    def list_filters(self):
+    def _new(self, im):
+        if not hasattr(im, 'gaussian_blur'):
+            self._im = Image(filename=im)
+        else:
+            self._im = im
+
+    @property
+    def filters(self):
         return list(self._filters.keys())
 
     def register_filter(self, name, func):
         """A function a plugin can use to register a image filter."""
         self._filters[name] = func
-
-    # def filter(self, name, *args, **kwargs):
-    #     return self._filters[name](self, *args, **kwargs)
 
     def _photo(self):
         return Photo(self._im)
@@ -68,6 +70,7 @@ class Photo(object):
         return display(image=self._im)
 
     def save(self, filename, *args, **kwargs):
+        self._im.strip()
         try:
             show = kwargs.pop("show")
             self._im.save(filename=filename, *args, **kwargs)
@@ -81,18 +84,12 @@ def main():
     im = Photo("../tests/lena512color.tiff")
     frame = im.copy()
 
-    print(im.size)
-    print(im.width, im.height)
-    # im.filter("blur", strength=0.5)
-    im.show()
+    # im
     im.save(filename="../tests/lena512color.png")
 
-    print(im.list_filters())
-
-    frame.blur(strength=0.5)
-    frame.bord("#000", 20).flop()
-    print(frame.size)
-    frame.save(filename="../tests/lena512color_blur.png", show=True)
+    # frame
+    frame.sepia(0.85).mask("radial").frame("kelvin")
+    frame.save(filename="../tests/lena512color_lomo.png", show=True)
 
 
 if __name__ == '__main__':
