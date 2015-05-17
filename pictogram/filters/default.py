@@ -69,7 +69,7 @@ def opacity(p, value):
 
 
 def level(p, black, white=None, gamma=1.0, channel=None):
-    p._im = Image(image=p._im)
+    p._im = Image(image=p._im.clone())
     p._im.level(black, white, gamma, channel)
     return p._photo()
 
