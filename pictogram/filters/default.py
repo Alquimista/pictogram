@@ -93,3 +93,4 @@ def setup(app):
     app.register_filter("composite", rotate)
     app.register_filter("negate", negate)
     app.register_filter("opacity", opacity)
+    app.register_filter("level", level)
