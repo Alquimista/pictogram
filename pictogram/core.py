@@ -28,7 +28,6 @@ class Photo(object):
 
     def __init__(self, im=None):
         super(Photo, self).__init__()
-        self._new(im)
         self.__plugins = plug.Plugin(PLUGIN_PATHS)
         self._filters = {}
 
@@ -42,15 +41,16 @@ class Photo(object):
         for name, func in self._filters.items():
             setattr(self.__class__, name, func)
 
+        self._im = self._new(im)
         self.width = self._im.width
         self.height = self._im.height
         self.size = self.width, self.height
 
     def _new(self, im):
         if not hasattr(im, 'gaussian_blur'):
-            self._im = Image(filename=im)
+            return Image(filename=im)
         else:
-            self._im = im
+            return im
 
     @property
     def filters(self):
@@ -60,24 +60,21 @@ class Photo(object):
         """A function a plugin can use to register a image filter."""
         self._filters[name] = func
 
-    def _photo(self):
-        return Photo(self._im)
-
     def copy(self):
-        return Photo(self._im.clone())
+        return Photo(Image(image=self._im))
 
     def show(self):
         return display(image=self._im)
 
     def save(self, filename, *args, **kwargs):
-        self._im.strip()
         try:
             show = kwargs.pop("show")
-            self._im.save(filename=filename, *args, **kwargs)
-            if show:
-                self.show()
         except KeyError:
-            self._im.save(filename=filename, *args, **kwargs)
+            show = False
+        self._im.strip()
+        self._im.save(filename=filename, *args, **kwargs)
+        if show:
+            self.show()
 
 
 def main():
@@ -88,7 +85,7 @@ def main():
     im.save(filename="../tests/lena512color.png")
 
     # frame
-    frame.sepia(0.85).mask("radial").frame("kelvin")
+    frame.blur(0.5).sepia(.85).vintage().lomo().frame("kelvin")
     frame.save(filename="../tests/lena512color_lomo.png", show=True)
 
 

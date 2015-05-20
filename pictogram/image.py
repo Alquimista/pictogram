@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import numbers
+from ctypes import c_void_p, c_double, c_int
+
 from wand.image import Image as WandImage
 from wand.image import CHANNELS
 from wand.api import library
-from ctypes import c_void_p, c_double, c_int
+from wand import image
 
 # Define C-API method signatures
 library.MagickLevelImage.argtypes = [c_void_p,  # wand
@@ -15,11 +18,15 @@ library.MagickLevelImageChannel.argtypes = [c_void_p,  # wand
                                             c_double,  # black_point
                                             c_double,  # gamma
                                             c_double]  # white_point
+
 library.MagickLevelImage.restype = c_int
 library.MagickLevelImageChannel.restype = c_int
 
 library.MagickSepiaToneImage.argtypes = [c_void_p, c_double]
 library.MagickSepiaToneImage.restype = None
+
+library.MagickBrightnessContrastImage.argtypes = [c_void_p, c_double, c_double]
+library.MagickBrightnessContrastImage.restype = None
 
 
 class Pixel(object):
@@ -64,6 +71,7 @@ class Image(WandImage):
             pixels.append(pixel)
         return pixels
 
+    @image.manipulative
     def level(self, black, white=None, gamma=1.0, channel=None):
         # Assert black, gamma, & white are float types
         # between 0.0 & 1.0.
@@ -86,6 +94,23 @@ class Image(WandImage):
         if not r:
             self.raise_exception()
 
+    @image.manipulative
     def sepia(self, threshold):
-        quantum = float(self.quantum_range)
-        return library.MagickSepiaToneImage(self.wand, threshold * quantum)
+        threshold = float(self.quantum_range * threshold)
+        r = library.MagickSepiaToneImage(self.wand, threshold)
+        if not r:
+            self.raise_exception()
+
+    @image.manipulative
+    def brightness_contrast(self, brightness=100.0, contrast=100.0):
+        if not isinstance(brightness, numbers.Real):
+            raise TypeError('brightness has to be a numbers.Real, not ' +
+                            repr(brightness))
+
+        elif not isinstance(contrast, numbers.Real):
+            raise TypeError('contrast has to be a numbers.Real, not ' +
+                            repr(contrast))
+        r = library.MagickBrightnessContrastImage(
+            self.wand, brightness, contrast)
+        if not r:
+            self.raise_exception()

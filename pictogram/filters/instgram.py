@@ -25,7 +25,7 @@ def lens_flare(p):
         channel="all_channels",
         image=bg,
         operator="screen")
-    return p._photo()
+    return p
 
 
 def mask(p, name, operator="multiply"):
@@ -35,7 +35,25 @@ def mask(p, name, operator="multiply"):
         channel="all_channels",
         image=bg,
         operator="multiply")
-    return p._photo()
+    return p
+
+
+def vintage(p):
+    light = Image(filename=os.path.join(ROOTPATH, "img/radial_light.png"))
+    light.resize(*p._im.size)
+    p._im.composite_channel(
+        channel="all_channels",
+        image=light,
+        operator="over")
+    p._im.modulate(brightness=100, saturation=120)
+    p._im.brightness_contrast(brightness=0, contrast=20)
+    vignette = Image(filename=os.path.join(ROOTPATH, "img/radial.png"))
+    vignette.resize(*p._im.size)
+    p._im.composite_channel(
+        channel="all_channels",
+        image=vignette,
+        operator="multiply")
+    return p
 
 
 def black_and_white(p):
@@ -46,7 +64,7 @@ def black_and_white(p):
         channel="all_channels",
         image=bg,
         operator="soft_light")
-    return p._photo()
+    return p
 
 
 def frame(p, name):
@@ -56,24 +74,18 @@ def frame(p, name):
         channel="all_channels",
         image=f,
         operator="over")
-    return p._photo()
-
-
-# Fix lomo and sepia
+    return p
 
 
 def lomo(p):
-    # only for level, sepia and pixel custom functions
-    p._im = Image(image=p._im.clone())
     p._im.level(channel="red", black=0.33)
     p._im.level(channel="green", black=0.33)
-    return p._photo()
+    return p
 
 
 def sepia(p, threshold):
-    p._im = Image(image=p._im.clone())
     p._im.sepia(threshold)
-    return p._photo()
+    return p
 
 
 def setup(app):
@@ -83,3 +95,4 @@ def setup(app):
     app.register_filter("frame", frame)
     app.register_filter("sepia", sepia)
     app.register_filter("mask", mask)
+    app.register_filter("vintage", vintage)
