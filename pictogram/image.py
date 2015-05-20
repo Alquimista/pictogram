@@ -6,7 +6,7 @@ from ctypes import c_void_p, c_double, c_int
 from wand.image import Image as WandImage
 from wand.image import CHANNELS
 from wand.api import library
-from wand import image
+import wand
 
 # Define C-API method signatures
 library.MagickLevelImage.argtypes = [c_void_p,  # wand
@@ -71,12 +71,9 @@ class Image(WandImage):
             pixels.append(pixel)
         return pixels
 
-    @image.manipulative
+    @wand.image.manipulative
     def level(self, black, white=None, gamma=1.0, channel=None):
-        # Assert black, gamma, & white are float types
-        # between 0.0 & 1.0.
-        # Both black & white values must be converted to
-        # QuantumRange percentages.
+        # black, gamma, & white are float between 0.0 & 1.0.
         if not white:
             white = 1 - black
         bp = float(self.quantum_range * black)
@@ -94,14 +91,14 @@ class Image(WandImage):
         if not r:
             self.raise_exception()
 
-    @image.manipulative
+    @wand.image.manipulative
     def sepia(self, threshold):
         threshold = float(self.quantum_range * threshold)
         r = library.MagickSepiaToneImage(self.wand, threshold)
         if not r:
             self.raise_exception()
 
-    @image.manipulative
+    @wand.image.manipulative
     def brightness_contrast(self, brightness=100.0, contrast=100.0):
         if not isinstance(brightness, numbers.Real):
             raise TypeError('brightness has to be a numbers.Real, not ' +

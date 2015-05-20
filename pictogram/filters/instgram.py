@@ -8,7 +8,7 @@ import os
 import sys
 try:
     from pictogram.filters import default
-    from pictogram import PImage
+    from pictogram import Image
 except ImportError:
     sys.path.insert(0, os.path.abspath(".."))
     from pictogram.filters import default
