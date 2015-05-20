@@ -47,7 +47,7 @@ class Photo(object):
         self.size = self.width, self.height
 
     def _new(self, im):
-        if not hasattr(im, 'gaussian_blur'):
+        if not hasattr(im, "gaussian_blur"):
             return Image(filename=im)
         else:
             return im
@@ -89,5 +89,5 @@ def main():
     frame.save(filename="../tests/lena512color_lomo.png", show=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

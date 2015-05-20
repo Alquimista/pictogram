@@ -11,7 +11,7 @@ I think is a fun project, that's all my justification
 
 
 ## Requirements
-* Python 3.4
+* Python 2.7 or 3.4 or PyPy 2.7
 * Wand 0.4.0
 * ImageMagick
 

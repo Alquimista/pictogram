@@ -2,7 +2,10 @@ syntax: glob
 
 build
 site
-.ipynb_checkpoints
+dist
+__pycache__
+*.pyc
+*.ipynb_checkpoints
 *.pyc
 *.pyd
 *.egg-info

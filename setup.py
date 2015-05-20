@@ -1,42 +1,69 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from setuptools import setup, find_packages
+import codecs
+import os
+import re
+import sys
 
-with open("README.md") as f:
-    readme = f.read()
+from setuptools import setup
+from setuptools.command.test import test as TestCommand
 
-with open("LICENSE") as f:
-    license = f.read()
 
-with open("requirements.txt") as f:
-    req = f.readlines()
+here = os.path.abspath(os.path.dirname(__file__))
 
-APP_NAME, APP_VERSION = "pictogram", "0.1.0"
 
-requirements = []
-for r in requirements:
-    if not r.startswith("Wand"):
-        continue
-    requirements.append(r)
+def read(*parts):
+    return codecs.open(os.path.join(here, *parts), "r").read()
+
+
+def find_version(*file_paths):
+    version_file = read(*file_paths)
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
+
+
+long_description = read("README.md") + "\n" + read("CHANGES.md")
+
+
+class PyTest(TestCommand):
+
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = ["--strict", "--verbose", "--tb=long", "tests"]
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        errno = pytest.main(self.test_args)
+        sys.exit(errno)
+
 
 setup(
-    name=APP_NAME,
-    version=APP_VERSION,
+    name="pictogram",
+    version=find_version("pictogram", "__init__.py"),
     description="Photo Filters",
-    long_description=readme,
+    long_description=long_description,
     author="Roberto Gea",
     author_email="robertogea@openmailbox.org",
     url="https://bitbucket.com/alquimista/pictogram",
     download_url="https://bitbucket.org/alquimista/pictogram/downloads",
     license=license,
-    packages=['pictogram'],
-    install_requires=requirements,
-    # scripts=["bin/pictogram"],
-    # entry_points = {
-    #       'console_scripts': [
-    #           'command-name = package.module:main_func_name',
-    #       ],
-    #   },
+    packages=["pictogram"],
+    include_package_data=True,
+    zip_safe=False,
+    cmdclass={"test": PyTest},
+    test_suite="tests",
+    tests_require=["pytest"],
+    install_requires="Wand",
+    entry_points={
+        'console_scripts': [
+            'pictogram = pictogram.__main__:main'
+        ]
+    },
+    package_data={"pictogram": ["filters/img/*"]},
     classifiers=[
         "Development Status :: 1",
         "Environment :: Other Environment",
@@ -48,5 +75,6 @@ setup(
         "Programming Language :: Python :: 3",
         "Topic :: Utilities",
     ],
+    extras_require={"testing": ["pytest"]},
     keywords="photo instagram picture pictogram image filter",
 )
