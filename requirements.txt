@@ -9,6 +9,6 @@ mkdocs==0.12.2
 namedentities==1.5.2
 py==1.4.27
 pytest==2.7.0
-PyYAML==3.11
+PyYAML==5.1
 tornado==4.1
 Wand==0.4.0
